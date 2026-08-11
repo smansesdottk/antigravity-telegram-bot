@@ -1,0 +1,13 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+*.log
+*.zip
+.DS_Store
+.idea/
+.vscode/
+bot_config.json
+conversation.json
+history.json
+backups/
