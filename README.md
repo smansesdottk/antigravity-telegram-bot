@@ -46,7 +46,7 @@ Install `agy`, then run it interactively once:
 agy
 ```
 
-Complete the sign-in flow. On remote SSH hosts, Antigravity can provide a URL/code authentication flow.
+Complete the sign-in flow. On remote SSH hosts, Antigravity provides a URL/code authentication flow when a local browser cannot be opened.
 
 Verify:
 
@@ -122,16 +122,16 @@ Antigravity stores its global settings at:
 ~/.gemini/antigravity-cli/settings.json
 ```
 
-A conservative starting example is included as [`permissions.example.json`](permissions.example.json). **Review it before copying it.** Do not blindly allow `command(*)`, and do not add `--dangerously-skip-permissions` to this bot.
+A conservative starting example is included as [`permissions.example.json`](permissions.example.json). **Review it before using it.** Do not blindly allow `command(*)`, and do not add `--dangerously-skip-permissions` to this bot.
 
-Example workflow:
+If you do **not** already have a settings file, you can use the example as a starting point:
 
 ```bash
 mkdir -p ~/.gemini/antigravity-cli
 cp permissions.example.json ~/.gemini/antigravity-cli/settings.json
 ```
 
-If you already have a settings file, merge the `permissions` object instead of overwriting your existing preferences.
+If `settings.json` already exists, **merge only the `permissions` object** instead of overwriting the file, so existing model, workspace, and other preferences are preserved.
 
 ## 6. Run manually first
 
@@ -219,9 +219,17 @@ Backups are stored outside `PROJECT_ROOT`, below `BOT_DATA_DIR/backups`. By defa
 
 Restore validates the ZIP, rejects path traversal and symbolic-link members, creates a pre-restore safety backup, and attempts rollback if extraction fails.
 
+## Source layout
+
+`bot.py` is the executable entry point. The implementation is stored as ordered text fragments under `src_parts/`; the entry point concatenates those local fragments in memory and executes them as one module. No source code is downloaded at runtime and normal users still start the bot with:
+
+```bash
+python bot.py
+```
+
 ## Important security notes
 
-- **Never commit `.env`**, OAuth tokens, `settings.json` containing personal paths, logs, conversation/history files, or backup archives.
+- **Never commit `.env`**, OAuth tokens, personal `settings.json`, logs, conversation/history files, or backup archives.
 - Keep `.env` permission-restricted (`chmod 600 .env`).
 - This project-root restriction controls what the **bot UI selects**, but it is not a Linux filesystem jail. Antigravity commands can potentially reach other files accessible to the OS account unless you restrict Antigravity permissions/sandboxing.
 - Review Write Mode permissions before using the bot from an internet-connected Telegram account.
@@ -254,7 +262,7 @@ You have more than one bot process using the same token. Stop the manual copy or
 
 - CLI installation/auth: https://antigravity.google/docs/cli-install
 - CLI permissions: https://antigravity.google/docs/cli-permissions
-- CLI settings: https://antigravity.google/docs/cli-settings
+- CLI settings: https://antigravity.google/docs/cli/settings
 - Model quotas (`/usage`): https://antigravity.google/docs/cli/commands/usage
 
 ## License
