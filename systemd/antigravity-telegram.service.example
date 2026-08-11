@@ -1,0 +1,18 @@
+[Unit]
+Description=Antigravity Telegram Bot
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=REPLACE_REPO_PATH
+ExecStart=REPLACE_REPO_PATH/.venv/bin/python REPLACE_REPO_PATH/bot.py
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+Environment=PYTHONUNBUFFERED=1
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target
