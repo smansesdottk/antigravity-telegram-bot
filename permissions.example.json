@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "command(pwd)",
+      "command(ls)",
+      "command(find)",
+      "command(cat)",
+      "command(head)",
+      "command(tail)",
+      "command(grep)",
+      "command(rg)",
+      "command(file)",
+      "command(stat)",
+      "command(wc)",
+      "command(git status)",
+      "command(git diff)",
+      "command(git log)",
+      "command(git branch)",
+      "command(git show)",
+      "command(python)",
+      "command(python3)",
+      "command(pytest)",
+      "command(node)",
+      "command(npm)",
+      "command(npx)",
+      "command(php)",
+      "command(composer)"
+    ],
+    "deny": [
+      "command(sudo)",
+      "command(su)",
+      "command(shutdown)",
+      "command(reboot)",
+      "command(poweroff)",
+      "command(halt)",
+      "command(mkfs)",
+      "command(fdisk)",
+      "command(parted)",
+      "command(dd)"
+    ]
+  }
+}
