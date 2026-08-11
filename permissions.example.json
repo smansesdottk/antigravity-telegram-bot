@@ -1,9 +1,15 @@
 {
+  "trustedWorkspaces": [
+    "/home/YOUR_USER/proyekku"
+  ],
   "permissions": {
     "allow": [
+      "read_file(/home/YOUR_USER/proyekku)",
+      "write_file(/home/YOUR_USER/proyekku)",
       "command(pwd)",
       "command(ls)",
       "command(find)",
+      "command(tree)",
       "command(cat)",
       "command(head)",
       "command(tail)",
@@ -12,6 +18,8 @@
       "command(file)",
       "command(stat)",
       "command(wc)",
+      "command(which)",
+      "command(whereis)",
       "command(git status)",
       "command(git diff)",
       "command(git log)",
@@ -36,7 +44,9 @@
       "command(mkfs)",
       "command(fdisk)",
       "command(parted)",
-      "command(dd)"
+      "command(dd)",
+      "read_file(/home/YOUR_USER/.ssh)",
+      "write_file(/home/YOUR_USER/.ssh)"
     ]
   }
 }
