@@ -114,7 +114,7 @@ If your `agy` is somewhere else, set `AGY_PATH` accordingly.
 
 ## 5. Antigravity permissions for headless mode
 
-This bot invokes `agy --print`, so Antigravity cannot display an interactive approval card. Unconfigured sensitive actions normally fall back to **Ask** and may therefore be denied in headless execution.
+This bot invokes `agy --print`, so Antigravity cannot display an interactive approval card. A tool permission that remains in **Ask** state may therefore be auto-denied in headless mode.
 
 Antigravity stores its global settings at:
 
@@ -122,16 +122,64 @@ Antigravity stores its global settings at:
 ~/.gemini/antigravity-cli/settings.json
 ```
 
-A conservative starting example is included as [`permissions.example.json`](permissions.example.json). **Review it before using it.** Do not blindly allow `command(*)`, and do not add `--dangerously-skip-permissions` to this bot.
+A conservative starting example is included as [`permissions.example.json`](permissions.example.json). **Review and customize it before using it.** Replace `YOUR_USER` with your actual Linux username and keep the allowed path aligned with your `PROJECT_ROOT`.
 
-If you do **not** already have a settings file, you can use the example as a starting point:
+For example, if your project root is:
+
+```text
+/home/alice/proyekku
+```
+
+a scoped headless configuration should use permissions such as:
+
+```json
+{
+  "trustedWorkspaces": [
+    "/home/alice/proyekku"
+  ],
+  "permissions": {
+    "allow": [
+      "read_file(/home/alice/proyekku)",
+      "write_file(/home/alice/proyekku)"
+    ]
+  }
+}
+```
+
+`read_file(...)` is important for prompts that inspect source code. Without an explicit scoped read permission, a headless request can fail with an error similar to:
+
+```text
+jetski: no output produced — a tool required the "read_file"
+permission that headless mode cannot prompt for, so it was auto-denied.
+```
+
+Avoid broad rules such as:
+
+```text
+read_file(*)
+write_file(*)
+command(*)
+```
+
+unless you deliberately want the agent to have that level of access. Prefer the narrowest directory/command permissions that satisfy your workflow.
+
+Do **not** add `--dangerously-skip-permissions` to this bot.
+
+If you do **not** already have a settings file, you can use the example as a starting point after editing its placeholder paths:
 
 ```bash
 mkdir -p ~/.gemini/antigravity-cli
 cp permissions.example.json ~/.gemini/antigravity-cli/settings.json
+nano ~/.gemini/antigravity-cli/settings.json
 ```
 
-If `settings.json` already exists, **merge only the `permissions` object** instead of overwriting the file, so existing model, workspace, and other preferences are preserved.
+Validate the JSON:
+
+```bash
+python3 -m json.tool ~/.gemini/antigravity-cli/settings.json
+```
+
+If `settings.json` already exists, **merge** the relevant `trustedWorkspaces` and `permissions` entries instead of overwriting the file, so your existing model and other preferences are preserved.
 
 ## 6. Run manually first
 
@@ -147,10 +195,11 @@ In Telegram:
 1. Send `/start`.
 2. Use `/project` or `/newproject`.
 3. Choose `/model` if desired.
-4. Send a read-only test prompt such as `Tampilkan struktur utama project. Jangan ubah file.`
-5. Check `/usage` and `/health`.
+4. Keep `/workmode` on **Read Only** for inspection/audit prompts.
+5. Send a test prompt such as `Tampilkan struktur utama project. Jangan ubah file.`
+6. Check `/usage` and `/health`.
 
-The default work mode is **Read Only**.
+Switch to **Write Mode** only when you actually want the agent to modify project files.
 
 ## 7. Optional IPv4 workaround
 
@@ -231,16 +280,31 @@ python bot.py
 
 - **Never commit `.env`**, OAuth tokens, personal `settings.json`, logs, conversation/history files, or backup archives.
 - Keep `.env` permission-restricted (`chmod 600 .env`).
+- Keep `trustedWorkspaces`, `read_file(...)`, and `write_file(...)` scoped to your intended project root instead of your entire home directory.
 - This project-root restriction controls what the **bot UI selects**, but it is not a Linux filesystem jail. Antigravity commands can potentially reach other files accessible to the OS account unless you restrict Antigravity permissions/sandboxing.
-- Review Write Mode permissions before using the bot from an internet-connected Telegram account.
+- File permissions and command permissions are separate concerns. Restrict both.
+- Prefer Read Only mode for audits, explanations, and code review; use Write Mode only for requested edits.
 - Do not use `--dangerously-skip-permissions`.
 - Use a dedicated Linux user if you want a stronger operating-system boundary.
 
 ## Troubleshooting
 
+### `jetski: no output produced ... read_file permission ... auto-denied`
+
+The bot is running AGY headlessly and Antigravity cannot ask for file-read approval interactively. Add a **scoped** `read_file(PROJECT_ROOT)` allow rule in `~/.gemini/antigravity-cli/settings.json`. If Write Mode needs to edit project files, add a scoped `write_file(PROJECT_ROOT)` rule too.
+
+Example:
+
+```text
+read_file(/home/alice/proyekku)
+write_file(/home/alice/proyekku)
+```
+
+Then retry the request. Do not solve this by enabling unrestricted `read_file(*)` unless that is truly intended.
+
 ### `jetski: no output produced ... command permission ... auto-denied`
 
-Headless AGY needed a command permission that was still `Ask`. Add a narrow `allow` rule for only the command you actually need. See `permissions.example.json` and the official Antigravity permissions documentation.
+AGY needed a shell command that was still `Ask`. Add a narrow `command(...)` allow rule for only the command you actually need. See `permissions.example.json`.
 
 ### Telegram `ConnectTimeout`
 
